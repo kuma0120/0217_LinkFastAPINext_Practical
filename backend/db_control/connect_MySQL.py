@@ -1,5 +1,4 @@
 from sqlalchemy import create_engine
-
 import os
 from dotenv import load_dotenv
 
@@ -12,11 +11,16 @@ DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_HOST = os.getenv('DB_HOST')
 DB_PORT = os.getenv('DB_PORT')
 DB_NAME = os.getenv('DB_NAME')
+SSL_CA_PATH = os.getenv('SSL_CA_PATH', 'DigiCertGlobalRootG2.crt.pem')
 
 # MySQLのURL構築
 DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-SSL_CA_PATH = os.getenv('SSL_CA_PATH')
+# SSL証明書ファイルのパスを絶対パスに変換
+current_dir = os.path.dirname(os.path.abspath(__file__))
+backend_dir = os.path.dirname(current_dir)
+cert_path = os.path.join(backend_dir, SSL_CA_PATH)
+
 # エンジンの作成
 engine = create_engine(
     DATABASE_URL,
@@ -24,6 +28,10 @@ engine = create_engine(
     pool_pre_ping=True,
     pool_recycle=3600,
     connect_args={
-        "ssl_ca": SSL_CA_PATH
+        "ssl": {
+            "ca": cert_path,
+            "check_hostname": False,
+            "ssl_version": "TLSv1_2"
+        }
     }
 )
