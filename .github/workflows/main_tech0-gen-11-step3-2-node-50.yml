@@ -41,8 +41,8 @@ jobs:
           if [ -d public ]; then 
             cp -r public .next/standalone/public
           fi
-          # 不要な scripts を削除して App Service での誤作動を防ぐ
-          node -e "const p=JSON.parse(require('fs').readFileSync('.next/standalone/package.json','utf8')); delete p.scripts; require('fs').writeFileSync('.next/standalone/package.json', JSON.stringify(p,null,2))"
+          # Oryx が node_modules を上書きしないよう package.json 等を削除
+          rm -f .next/standalone/package.json .next/standalone/package-lock.json
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
